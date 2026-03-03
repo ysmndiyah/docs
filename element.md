@@ -1,3 +1,120 @@
+# 📦 CrootJs — Dokumentasi `element.js`
+
+> **CrootJs** adalah library JavaScript ringan untuk menyederhanakan manipulasi DOM dan event handling di sisi klien.
+
+---
+
+## 📋 Daftar Isi
+
+- [Instalasi & Import](#instalasi--import)
+- [1. onChange()](#1-onchangeid-actionfunctionname)
+- [2. getValue()](#2-getvalueid)
+- [3. setInner()](#3-setinnerid-content)
+---
+
+## Instalasi & Import
+
+```js
+import { onChange, getValue, setInner } from './element.js';
+```
+
+---
+
+## 1. `onChange(id, actionfunctionname)`
+
+Mendaftarkan event listener `change` pada elemen berdasarkan `id`. Callback dipanggil setiap kali nilai elemen **berubah dan kehilangan fokus**.
+
+### Parameter
+
+| Parameter            | Tipe       | Wajib | Deskripsi                                          |
+|----------------------|------------|-------|----------------------------------------------------|
+| `id`                 | `string`   | ✅    | ID elemen target (`<input>`, `<select>`, `<textarea>`) |
+| `actionfunctionname` | `Function` | ✅    | Fungsi callback; menerima `event.target` sebagai argumen |
+
+### Catatan
+
+- Gunakan di dalam `runAfterDOM()` agar elemen sudah tersedia saat listener didaftarkan.
+- Callback menerima `target` (bukan `event`), sehingga langsung bisa akses `target.value`.
+- Berbeda dengan `onInput()` yang aktif setiap ketukan, `onChange()` hanya aktif setelah elemen kehilangan fokus.
+
+### Contoh
+
+```js
+import { onChange } from './element.js';
+
+onChange('selectKota', (target) => {
+    console.log('Kota dipilih:', target.value);
+    // Output: "Kota dipilih: Bandung"
+});
+```
+
+---
+
+## 2. `getValue(id)`
+
+Mengambil nilai properti `value` dari elemen input berdasarkan `id`. Cocok untuk membaca data dari `<input>`, `<textarea>`, maupun `<select>`.
+
+### Parameter
+
+| Parameter | Tipe     | Wajib | Deskripsi              |
+|-----------|----------|-------|------------------------|
+| `id`      | `string` | ✅    | ID elemen input target |
+
+### Return Value
+
+| Tipe     | Deskripsi                                             |
+|----------|-------------------------------------------------------|
+| `string` | Nilai dari properti `value` elemen. Mengembalikan string kosong `""` jika input belum diisi. |
+
+### Catatan
+
+- Hasil selalu bertipe `string`. Gunakan `Number()` atau `parseInt()` jika membutuhkan angka.
+- Jika elemen tidak ditemukan, akan melempar error `Cannot read properties of null`.
+
+### Contoh
+
+```js
+import { getValue } from './element.js';
+
+const nama  = getValue('txtNama');     // → "Saripudin"
+const umur  = Number(getValue('txtUmur')); // → 21
+const email = getValue('txtEmail');   // → "saripudin@mail.com"
+```
+
+---
+
+## 3. `setInner(id, content)`
+
+Mengubah `innerHTML` dari elemen berdasarkan `id`. Digunakan untuk **merender konten HTML secara dinamis** ke dalam elemen tanpa perlu reload halaman.
+
+### Parameter
+
+| Parameter | Tipe     | Wajib | Deskripsi                                              |
+|-----------|----------|-------|--------------------------------------------------------|
+| `id`      | `string` | ✅    | ID elemen target                                       |
+| `content` | `string` | ✅    | String HTML yang akan dirender sebagai konten elemen   |
+
+### Catatan
+
+- Mendukung tag HTML penuh — teks, tabel, gambar, dan elemen lainnya.
+- Konten lama **akan ditimpa** sepenuhnya. Gunakan `addInner()` jika ingin menambahkan tanpa menghapus yang lama.
+- Hati-hati terhadap **XSS** jika `content` berasal langsung dari input pengguna yang tidak disanitasi.
+
+### Contoh
+
+```js
+import { setInner } from './element.js';
+
+// Pesan status
+setInner('divPesan', '<span class="sukses">✅ Data berhasil disimpan!</span>');
+
+// Render tabel dari data
+const rows = data.map(d => `<tr><td>${d.nama}</td><td>${d.nilai}</td></tr>`).join('');
+setInner('tbodyHasil', rows);
+```
+
+---
+
 # Dokumentasi Modul element.js
 
 ## 1. Pendahuluan
