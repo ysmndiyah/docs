@@ -382,3 +382,168 @@ document.addEventListener("DOMContentLoaded", () => {
 ```
 
 ---
+
+ Dokumentasi Upload File - api.js
+
+Dokumentasi ini menjelaskan fungsi-fungsi upload file yang tersedia di `api.js`
+menggunakan `fetch()` dan `FormData`.
+
+---
+
+# 📌 SOURCE CODE
+
+```javascript
+export function postFile(target_url,id,formdataname,responseFunction) {
+    const input = document.getElementById(id);
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append(formdataname, file);
+
+    var requestOptions = {
+        method: 'POST',
+        body: formData,
+        redirect: 'follow'
+    };
+    
+    fetch(target_url, requestOptions)
+    .then(response => response.text())
+    .then(result => responseFunction(JSON.parse(result)))
+    .catch(error => console.log('error', error));
+}
+
+// make sure formdataname use in the backend to get data file
+export function postFileWithHeader(target_url,tokenkey,tokenvalue,id,formdataname,responseFunction) {
+    let myHeaders = new Headers();
+    myHeaders.append(tokenkey, tokenvalue);
+    myHeaders.append("Accept", "application/json");
+
+    const input = document.getElementById(id);
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append(formdataname, file);
+
+    var requestOptions = {
+        method: 'POST',
+        body: formData,
+        redirect: 'follow',
+        headers: myHeaders
+    };
+    
+    fetch(target_url, requestOptions)
+    .then(response => response.text())
+    .then(result => responseFunction(JSON.parse(result)))
+    .catch(error => console.log('error', error));
+}
+
+export function postFileJSON(target_url, tokenkey, tokenvalue, id, formdataname, responseFunction) {
+    let myHeaders = new Headers();
+    myHeaders.append(tokenkey, tokenvalue);
+    myHeaders.append("Accept", "application/json");
+
+    const input = document.getElementById(id);
+    const file = input.files[0];
+    const formData = new FormData();
+    formData.append(formdataname, file);
+
+    var requestOptions = {
+        method: 'POST',
+        body: formData,
+        redirect: 'follow',
+        headers: myHeaders
+    };
+
+    fetch(target_url, requestOptions)
+    .then(response => response.text().then(data => ({
+        status: response.status,
+        data: data
+    })))
+    .then(result => responseFunction({
+        status: result.status,
+        data: JSON.parse(result.data)
+    }))
+    .catch(error => console.log('error', error));
+}
+```
+
+---
+
+# 📌 PENJELASAN FUNGSI
+
+## 1️⃣ postFile()
+
+Digunakan untuk upload file tanpa header tambahan.
+
+### Parameter:
+- `target_url` → endpoint backend
+- `id` → id input file di HTML
+- `formdataname` → nama field file di backend
+- `responseFunction` → callback untuk menerima response
+
+### Contoh penggunaan:
+
+```javascript
+postFile(
+    "https://example.com/upload",
+    "fileInput",
+    "file",
+    function(response){
+        console.log(response);
+    }
+);
+```
+
+---
+
+## 2️⃣ postFileWithHeader()
+
+Digunakan untuk upload file dengan header (biasanya token authentication).
+
+### Parameter tambahan:
+- `tokenkey` → contoh: "Authorization"
+- `tokenvalue` → contoh: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+### Contoh penggunaan:
+
+```javascript
+postFileWithHeader(
+    "https://example.com/upload",
+    "Authorization",
+    "Bearer TOKEN_KAMU",
+    "fileInput",
+    "file",
+    function(response){
+        console.log(response);
+    }
+);
+```
+
+---
+
+## 3️⃣ postFileJSON()
+
+Digunakan untuk upload file dan mengembalikan:
+- HTTP Status Code
+- Data JSON
+
+### Contoh response handler:
+
+```javascript
+function responseHandler(response) {
+    console.log("HTTP Status:", response.status);
+    console.log("Response Data:", response.data);
+}
+```
+
+---
+
+# ⚠️ CATATAN PENTING
+
+- Pastikan `formdataname` sama dengan nama field di backend.
+- Input HTML harus memiliki `type="file"`.
+- Jangan set `Content-Type` manual jika menggunakan `FormData`.
+
+Contoh HTML:
+
+```html
+<input type="file" id="fileInput">
+```
