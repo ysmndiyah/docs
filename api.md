@@ -235,5 +235,150 @@ function hapusMahasiswa(mahasiswaId) {
   );
 }
 ```
+## 1.4 `putJSON`
+
+Sends a **PUT** request with a JSON body to the specified URL and passes the response (status + parsed data) to a callback function.
+
+```javascript
+putJSON(target_url, datajson, responseFunction, tokenkey?, tokenvalue?)
+```
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `target_url` | `string` | ✅ | The endpoint URL to send the PUT request to |
+| `datajson` | `object` | ✅ | The JavaScript object to be sent as the JSON body |
+| `responseFunction` | `function` | ✅ | Callback receiving `{ status, data }` from the response |
+| `tokenkey` | `string` | ❌ | Header key name for authorization token (e.g. `"Authorization"`) |
+| `tokenvalue` | `string` | ❌ | Header value for the token (e.g. `"Bearer abc123"`) |
+
+**Response Callback Shape**
+
+```javascript
+responseFunction({ status: number, data: object })
+```
+
+**Example**
+
+```javascript
+import { putJSON } from './lib/api.js';
+
+const payload = { name: "Alice", age: 30 };
+
+putJSON(
+  "https://api.example.com/users/1",
+  payload,
+  ({ status, data }) => {
+    console.log("Status:", status); // e.g. 200
+    console.log("Data:", data);     // parsed JSON response
+  },
+  "Authorization",
+  "Bearer my-secret-token"
+);
+```
+
+---
+
+## 1.5  `insertHTML`
+
+Fetches raw HTML from a URL and **injects it into a DOM element** by its `id`, then runs a callback function after rendering.
+
+```javascript
+insertHTML(target_url, id, runFunction)
+```
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `target_url` | `string` | ✅ | The URL to fetch HTML content from |
+| `id` | `string` | ✅ | The `id` of the DOM element where the HTML will be injected |
+| `runFunction` | `function` | ✅ | Callback executed after the HTML has been inserted |
+
+**Example**
+
+```javascript
+import { insertHTML } from './lib/api.js';
+
+insertHTML(
+  "https://example.com/partials/navbar.html",
+  "navbar-container",
+  () => {
+    console.log("Navbar has been loaded and rendered!");
+    // Initialize dropdown menus, event listeners, etc.
+  }
+);
+```
+---
+
+## 1.6 `getDomHTML`
+
+Fetches HTML from a URL and returns it as a **parsed DOM object** via a callback, allowing you to query and manipulate elements programmatically before rendering.
+
+```javascript
+getDomHTML(target_url, domFunction)
+```
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `target_url` | `string` | ✅ | The URL to fetch HTML content from |
+| `domFunction` | `function` | ✅ | Callback receiving the parsed `Document` object |
+
+**Example**
+
+```javascript
+import { getDomHTML } from './lib/api.js';
+
+getDomHTML(
+  "https://example.com/partials/card.html",
+  (htmlDom) => {
+    const title = htmlDom.querySelector(".card-title");
+    console.log("Card title:", title?.textContent);
+
+    // You can then append or modify elements before inserting into the page
+    document.getElementById("content").appendChild(
+      document.importNode(htmlDom.body, true)
+    );
+  }
+);
+```
+
+
+## Usage Examples
+
+### Updating a resource with authentication
+
+```javascript
+import { putJSON } from './lib/api.js';
+
+putJSON(
+  "/api/products/42",
+  { price: 99.99, stock: 150 },
+  ({ status, data }) => {
+    if (status === 200) {
+      alert("Product updated successfully!");
+    } else {
+      console.error("Update failed:", data);
+    }
+  },
+  "x-api-key",
+  "your-api-key-here"
+);
+```
+
+### Loading a page section dynamically
+
+```javascript
+import { insertHTML } from './lib/api.js';
+
+document.addEventListener("DOMContentLoaded", () => {
+  insertHTML("/components/footer.html", "footer", () => {
+    console.log("Footer loaded.");
+  });
+});
+```
 
 ---
